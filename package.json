@@ -1,34 +1,38 @@
 {
   "name": "kang-kang-ai",
   "version": "1.0.0",
+  "description": "Chinese Vietnamese AI Translator",
+  "author": "Kang Kang",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "build:win": "electron-builder --win"
   },
-  "devDependencies": {
-    "electron": "^30.5.1",
-    "electron-builder": "^24.13.3"
-  },
   "dependencies": {
-    "groq-sdk": "^0.7.0",
-    "pinyin": "^4.0.0"
+    "electron": "^30.5.1",
+    "groq-sdk": "^0.5.0",
+    "pinyin": "^3.1.0"
+  },
+  "devDependencies": {
+    "electron-builder": "^24.13.3"
   },
   "build": {
     "appId": "com.kangkang.ai",
     "productName": "Kang Kang AI",
-    "asar": true,
+    "directories": {
+      "output": "dist"
+    },
     "files": [
-      "main.js",
-      "package.json",
-      "icon.png"
+      "**/*"
     ],
     "win": {
       "target": "nsis",
       "icon": "icon.ico"
     },
-    "mac": {
-      "icon": "icon.icns"
-    }
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "publish": null
   }
 }
