@@ -1,32 +1,26 @@
 {
   "name": "kang-kang-ai",
   "version": "1.0.0",
-  "description": "Kang Kang AI Translator",
   "main": "main.js",
-  "author": "Kang",
-  "license": "MIT",
   "scripts": {
     "start": "electron .",
-    "build:mac": "electron-builder --mac"
-  },
-  "dependencies": {
-    "groq-sdk": "^0.8.0",
-    "pinyin": "^2.11.2"
-  },
-  "devDependencies": {
-    "electron": "^28.2.0",
-    "electron-builder": "^24.9.1"
+    "build:win": "electron-builder --win"
   },
   "build": {
-    "appId": "com.kang.kangai",
+    "appId": "com.kangkang.ai",
     "productName": "Kang Kang AI",
+    "asar": true,
     "files": [
-      "**/*"
+      "main.js",
+      "package.json",
+      "icon.png"
     ],
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
+    },
     "mac": {
-      "target": "dmg",
-      "category": "public.app-category.productivity",
-      "icon": "build/icon.icns"
+      "icon": "icon.icns"
     }
   }
 }
