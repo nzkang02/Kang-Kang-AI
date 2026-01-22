@@ -17,6 +17,11 @@ const crypto = require("crypto");
 const Groq = require("groq-sdk");
 const pinyin = require("pinyin");
 
+/* ================= PLATFORM ================= */
+const isMac = process.platform === "darwin";
+const HOTKEY_TRANSLATE = isMac ? "Command+D" : "Control+D";
+const HOTKEY_API = isMac ? "Command+Alt+K" : "Control+Alt+K";
+
 /* ================= ENCRYPT ================= */
 function getSecret() {
   return crypto
@@ -80,7 +85,7 @@ let apiFailCount = 0;
 /* ================= UTILS ================= */
 const hasChinese = t => /[\u4e00-\u9fff]/.test(t);
 
-/* ================= PINYIN (FIX TRIỆT ĐỂ) ================= */
+/* ================= PINYIN (CHUẨN TỪNG CHỮ) ================= */
 function renderZhWithPinyin(text) {
   const zhChars = [...text].filter(c => /[\u4e00-\u9fff]/.test(c));
   const pys = pinyin(zhChars.join(""), {
@@ -170,8 +175,10 @@ function updatePopup(srcText, translatedText, loading = false) {
   win.loadURL(
     "data:text/html;charset=utf-8," +
       encodeURIComponent(`
+<!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <style>
 body{
 margin:0;
@@ -305,13 +312,12 @@ function copyZh(){
   );
 }
 
-/* ================= API INPUT POPUP ================= */
+/* ================= API INPUT ================= */
 function showApiInputPopup() {
   if (win) {
     win.close();
     win = null;
   }
-
   createPopup();
 
   win.loadURL(
@@ -320,15 +326,12 @@ function showApiInputPopup() {
 <body style="background:#1e1e1e;color:white;
 font-family:-apple-system;padding:20px">
 <h3>🔑 Nhập API Key</h3>
-
 <input id="k" type="password"
 style="width:100%;padding:10px;border-radius:8px;border:none" />
-
 <div style="margin-top:16px;text-align:right">
   <button onclick="save()">Save</button>
   <button onclick="window.close()">Cancel</button>
 </div>
-
 <script>
 const {ipcRenderer}=require("electron");
 function save(){
@@ -343,14 +346,14 @@ function save(){
 
 ipcMain.on("save-key", (_, key) => {
   if (!key || !key.startsWith("gsk_")) {
-    updatePopup("❌", "Bảo Bối Chờ 1 Chút AI Đang Lag", false);
+    updatePopup("❌", "API key không hợp lệ", false);
     return;
   }
   saveApiKey(key);
   apiKey = key;
   groq = new Groq({ apiKey });
   apiFailCount = 0;
-  updatePopup("✅", "Bảo Bối Save API key okela dùi", false);
+  updatePopup("✅", "Đã lưu API key", false);
 });
 
 /* ================= APP ================= */
@@ -364,14 +367,14 @@ app.whenReady().then(() => {
     Menu.buildFromTemplate([
       { label: "Kang Kang AI", enabled: false },
       { type: "separator" },
-      { label: "⌘ + D : Dịch", enabled: false },
-      { label: "⌘ + ⌥ + K : Đổi API key", enabled: false },
+      { label: `${HOTKEY_TRANSLATE} : Dịch`, enabled: false },
+      { label: `${HOTKEY_API} : Đổi API key`, enabled: false },
       { type: "separator" },
       { label: "Quit", click: () => app.quit() }
     ])
   );
 
-  globalShortcut.register("Command+D", async () => {
+  globalShortcut.register(HOTKEY_TRANSLATE, async () => {
     const text = clipboard.readText().trim();
     if (!text) return;
 
@@ -384,11 +387,11 @@ app.whenReady().then(() => {
 
       updatePopup(text, out, false);
     } catch {
-      updatePopup(text, "❌ Bảo Bối AI lỗi dùi khum dịch đượt", false);
+      updatePopup(text, "❌ Bảo Bối AI lỗi dùi khum thể dịch", false);
     }
   });
 
-  globalShortcut.register("Command+Alt+K", showApiInputPopup);
+  globalShortcut.register(HOTKEY_API, showApiInputPopup);
 });
 
 /* ================= KEEP ALIVE ================= */
